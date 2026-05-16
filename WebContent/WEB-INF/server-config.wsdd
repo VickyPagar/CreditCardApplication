@@ -1,0 +1,111 @@
+<!-- ============================================================
+     server-config.wsdd
+     Apache AXIS 1.x Web Service Deployment Descriptor
+     FirstBank Credit Card SOAP Service Registration
+     Created: 2001-06-15  Author: FirstBank IT Dept - Integration Team
+     ============================================================ -->
+
+<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+            xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+    <!-- Global AXIS Configuration -->
+    <globalConfiguration>
+        <parameter name="sendMultiRefs" value="true"/>
+        <parameter name="disablePrettyXML" value="true"/>
+        <parameter name="adminPassword" value="admin"/>
+        <parameter name="attachments.implementation"
+                   value="org.apache.axis.attachments.AttachmentsImpl"/>
+        <parameter name="sendXsiTypes" value="true"/>
+        <parameter name="sendXMLDeclaration" value="true"/>
+        <parameter name="dotNetSoapEncFix" value="true"/>
+    </globalConfiguration>
+
+    <!-- ============================================================
+         Transport: HTTP
+         ============================================================ -->
+    <transport name="http"
+               pivot="java:org.apache.axis.transport.http.HTTPSender"/>
+
+    <transport name="local"
+               pivot="java:org.apache.axis.transport.local.LocalSender"/>
+
+    <!-- ============================================================
+         Credit Card Application Web Service
+         Service Endpoint: /services/CreditCardService
+         ============================================================ -->
+
+    <service name="CreditCardService" provider="java:RPC" style="RPC" use="encoded">
+
+        <parameter name="wsdlTargetNamespace" value="urn:creditcard.firstbank.com"/>
+        <parameter name="wsdlServiceElement" value="CreditCardService"/>
+        <parameter name="wsdlServicePort" value="CreditCardServicePort"/>
+        <parameter name="className"
+                   value="com.firstbank.creditcard.service.CreditCardServiceImpl"/>
+        <parameter name="wsdlPortType" value="CreditCardServicePortType"/>
+        <parameter name="wsdlSoapActionMode" value="OPERATION"/>
+
+        <!-- Allowed methods -->
+        <parameter name="allowedMethods"
+                   value="submitApplication getApplicationStatus getCardTypes"/>
+
+        <!-- Type mappings for complex types -->
+        <typeMapping
+            xmlns:ns="urn:creditcard.firstbank.com"
+            qname="ns:CreditCardApplicationRequest"
+            type="java:com.firstbank.creditcard.service.CreditCardApplicationRequest"
+            serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+        <typeMapping
+            xmlns:ns="urn:creditcard.firstbank.com"
+            qname="ns:CreditCardApplicationResponse"
+            type="java:com.firstbank.creditcard.service.CreditCardApplicationResponse"
+            serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+        <typeMapping
+            xmlns:ns="urn:creditcard.firstbank.com"
+            qname="ns:ApplicationStatusResponse"
+            type="java:com.firstbank.creditcard.service.ApplicationStatusResponse"
+            serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+        <typeMapping
+            xmlns:ns="urn:creditcard.firstbank.com"
+            qname="ns:CardTypeInfo"
+            type="java:com.firstbank.creditcard.service.CardTypeInfo"
+            serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+        <arrayMapping
+            xmlns:ns="urn:creditcard.firstbank.com"
+            qname="ns:ArrayOfCardTypeInfo"
+            type="java:com.firstbank.creditcard.service.CardTypeInfo[]"
+            innerType="ns:CardTypeInfo"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+    </service>
+
+    <!-- Admin service (restrict in production) -->
+    <service name="AdminService" provider="java:MSG">
+        <parameter name="allowedMethods" value="AdminService"/>
+        <parameter name="enableRemoteAdmin" value="false"/>
+        <parameter name="className"
+                   value="org.apache.axis.utils.Admin"/>
+    </service>
+
+    <!-- WSDL generation handler chain -->
+    <handler name="LocalResponder"
+             type="java:org.apache.axis.transport.local.LocalResponder"/>
+
+    <handler name="URLMapper"
+             type="java:org.apache.axis.handlers.http.URLMapper"/>
+
+    <handler name="Authenticate"
+             type="java:org.apache.axis.handlers.SimpleAuthenticationHandler"/>
+
+</deployment>

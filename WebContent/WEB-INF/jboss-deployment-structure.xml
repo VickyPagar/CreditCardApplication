@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+        <!-- Exclude WildFly's built-in modules that conflict with our libraries -->
+        <exclusions>
+            <module name="org.apache.commons.logging"/>
+            <module name="org.apache.log4j"/>
+        </exclusions>
+        
+        <!-- Using H2 database (already included in WildFly) -->
+        <!-- No additional JDBC driver dependencies needed -->
+    </deployment>
+</jboss-deployment-structure>
+
+<!-- Made with Bob -->

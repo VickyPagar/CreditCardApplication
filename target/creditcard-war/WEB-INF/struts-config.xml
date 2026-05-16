@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+    "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<!--
+    struts-config.xml - Apache Struts 1.1 Configuration
+    FirstBank Credit Card Application System
+    Created: 2001-06-15  Author: FirstBank IT Department - Web Team
+-->
+
+<struts-config>
+
+    <!-- ==========================================================
+         FORM BEAN DEFINITIONS (ActionForms)
+         ========================================================== -->
+
+    <form-beans>
+
+        <!-- Step 1: Personal Information Form -->
+        <form-bean name="personalInfoForm"
+                   type="com.firstbank.creditcard.form.PersonalInfoForm"/>
+
+        <!-- Step 2: Financial Information Form -->
+        <form-bean name="financialInfoForm"
+                   type="com.firstbank.creditcard.form.FinancialInfoForm"/>
+
+        <!-- Application Status Inquiry Form -->
+        <form-bean name="statusInquiryForm"
+                   type="org.apache.struts.action.DynaActionForm">
+            <form-property name="applicationId" type="java.lang.String"/>
+        </form-bean>
+
+    </form-beans>
+
+    <!-- ==========================================================
+         GLOBAL EXCEPTION HANDLERS
+         ========================================================== -->
+
+    <global-exceptions>
+        <exception
+            type="javax.ejb.EJBException"
+            key="error.ejb.system"
+            path="/pages/error.jsp"/>
+        <exception
+            type="java.lang.Exception"
+            key="error.system.unexpected"
+            path="/pages/error.jsp"/>
+    </global-exceptions>
+
+    <!-- ==========================================================
+         GLOBAL FORWARDS
+         ========================================================== -->
+
+    <global-forwards>
+        <forward name="error"           path="/pages/error.jsp"/>
+        <forward name="session"         path="/pages/session_expired.jsp"/>
+        <forward name="home"            path="/index.jsp"/>
+    </global-forwards>
+
+    <!-- ==========================================================
+         ACTION MAPPINGS
+         ========================================================== -->
+
+    <action-mappings>
+
+        <!-- APPLICATION WELCOME PAGE -->
+        <action path="/welcome"
+                forward="/pages/welcome.jsp"/>
+
+        <!-- STEP 1: PERSONAL INFORMATION -->
+        <action path="/personalInfo"
+                type="com.firstbank.creditcard.action.PersonalInfoAction"
+                name="personalInfoForm"
+                scope="request"
+                input="/pages/personal_info.jsp"
+                validate="true">
+            <forward name="success"  path="/pages/financial_info.jsp"/>
+            <forward name="failure"  path="/pages/personal_info.jsp"/>
+            <forward name="error"    path="/pages/error.jsp"/>
+        </action>
+
+        <!-- STEP 2: FINANCIAL INFORMATION -->
+        <action path="/financialInfo"
+                type="com.firstbank.creditcard.action.FinancialInfoAction"
+                name="financialInfoForm"
+                scope="request"
+                input="/pages/financial_info.jsp"
+                validate="true">
+            <forward name="success"  path="/pages/confirmation.jsp"/>
+            <forward name="failure"  path="/pages/financial_info.jsp"/>
+            <forward name="session"  path="/pages/session_expired.jsp"/>
+            <forward name="error"    path="/pages/error.jsp"/>
+        </action>
+
+        <!-- APPLICATION STATUS INQUIRY -->
+        <action path="/statusInquiry"
+                type="com.firstbank.creditcard.action.StatusInquiryAction"
+                name="statusInquiryForm"
+                scope="request"
+                input="/pages/status_inquiry.jsp"
+                validate="false">
+            <forward name="success"  path="/pages/application_status.jsp"/>
+            <forward name="notFound" path="/pages/status_not_found.jsp"/>
+            <forward name="error"    path="/pages/error.jsp"/>
+        </action>
+
+        <!-- SHOW PERSONAL INFO FORM (GET) -->
+        <action path="/showPersonalInfo"
+                forward="/pages/personal_info.jsp"/>
+
+        <!-- SHOW STATUS INQUIRY FORM (GET) -->
+        <action path="/showStatusInquiry"
+                forward="/pages/status_inquiry.jsp"/>
+
+        <!-- SHOW CARD TYPES / PRODUCTS -->
+        <action path="/cardProducts"
+                forward="/pages/card_products.jsp"/>
+
+    </action-mappings>
+
+    <!-- ==========================================================
+         MESSAGE RESOURCES (i18n properties files)
+         ========================================================== -->
+
+    <message-resources parameter="ApplicationResources"/>
+
+    <!-- ==========================================================
+         STRUTS PLUGINS
+         ========================================================== -->
+
+    <!-- Validator Plugin removed - not using validation framework -->
+
+</struts-config>

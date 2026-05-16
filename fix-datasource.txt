@@ -1,0 +1,12 @@
+The error is in standalone.xml datasource configuration.
+
+WRONG (what you have):
+<security>
+    <user-name>sa</user-name>
+    <password></password>
+</security>
+
+CORRECT (what it should be):
+<security user-name="sa" password=""/>
+
+Find this section in standalone.xml and replace it.

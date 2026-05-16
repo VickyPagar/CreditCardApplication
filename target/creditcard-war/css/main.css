@@ -1,0 +1,181 @@
+/*
+ * main.css - FirstBank Credit Card Application Stylesheet
+ * Classic early-2000s banking application design
+ * Author: FirstBank Web Team  Created: 2001-06-15
+ * Compatible: IE 5.5+, Netscape 4.7+
+ */
+
+/* BODY */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #000000;
+    background-color: #C0C0C0;
+    margin: 0;
+    padding: 5px;
+}
+
+/* LINKS */
+a {
+    color: #003366;
+    text-decoration: underline;
+}
+a:hover {
+    color: #CC0000;
+    text-decoration: underline;
+}
+a.navlink {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+}
+a.navlink:hover {
+    color: #FFCC00;
+    text-decoration: underline;
+}
+
+/* HEADINGS */
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #003366;
+    border-bottom: 2px solid #336699;
+    padding-bottom: 3px;
+}
+h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #003366;
+}
+h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #336699;
+}
+
+/* FORM ELEMENTS - Classic early 2000s browser defaults with minor styling */
+.inputField {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    border: 1px solid #999999;
+    background-color: #FAFAFA;
+    color: #000000;
+}
+input[type=text], input[type=password], select, textarea {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    border: 1px solid #999999;
+    background-color: #FAFAFA;
+}
+input[type=submit] {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+}
+input[type=button] {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+}
+textarea {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    border: 1px solid #999999;
+}
+
+/* STRUTS ERROR MESSAGES */
+.error {
+    color: #CC0000;
+    font-family: Arial, Helvetica;
+    font-size: 11px;
+    font-weight: bold;
+}
+.errorList {
+    background-color: #FFEEEE;
+    border: 1px solid #CC0000;
+    padding: 8px;
+    margin: 5px;
+}
+
+/* DATA TABLES */
+table.dataTable {
+    border-collapse: collapse;
+    width: 100%;
+}
+table.dataTable th {
+    background-color: #003366;
+    color: #FFFFFF;
+    font-family: Arial, Helvetica;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    padding: 4px 6px;
+}
+table.dataTable td {
+    font-family: Arial, Helvetica;
+    font-size: 11px;
+    padding: 3px 6px;
+    border-bottom: 1px solid #DDDDDD;
+}
+table.dataTable tr.alt {
+    background-color: #F4F8FF;
+}
+
+/* SECTION HEADER */
+.sectionHeader {
+    background-color: #003366;
+    color: #FFFFFF;
+    font-family: Arial, Helvetica;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+/* STATUS BADGES */
+.statusPending {
+    color: #CC6600;
+    font-weight: bold;
+}
+.statusApproved {
+    color: #006600;
+    font-weight: bold;
+}
+.statusRejected {
+    color: #CC0000;
+    font-weight: bold;
+}
+.statusReview {
+    color: #0000CC;
+    font-weight: bold;
+}
+
+/* NOTICE / ALERT BOXES */
+.noticeBox {
+    background-color: #FFFFCC;
+    border: 1px solid #FFCC00;
+    padding: 6px;
+    font-family: Arial;
+    font-size: 11px;
+}
+.errorBox {
+    background-color: #FFEEEE;
+    border: 1px solid #CC0000;
+    padding: 6px;
+    font-family: Arial;
+    font-size: 11px;
+    color: #CC0000;
+}
+.successBox {
+    background-color: #EEFFEE;
+    border: 1px solid #009900;
+    padding: 6px;
+    font-family: Arial;
+    font-size: 11px;
+    color: #006600;
+}

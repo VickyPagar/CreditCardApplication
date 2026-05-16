@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    CreditCardService.wsdl
+    FirstBank Credit Card Application SOAP Web Service Definition
+    Generated using Apache AXIS 1.x Java2WSDL tool
+    Created: 2001-06-15  Author: FirstBank IT Department - Integration Team
+
+    Target Namespace: urn:creditcard.firstbank.com
+    Service Endpoint: http://host:7001/creditcard/services/CreditCardService
+-->
+
+<definitions name="CreditCardService"
+             targetNamespace="urn:creditcard.firstbank.com"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="urn:creditcard.firstbank.com"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+    <!-- ==========================================================
+         TYPES DEFINITION
+         ========================================================== -->
+    <types>
+        <xsd:schema targetNamespace="urn:creditcard.firstbank.com">
+
+            <!-- CreditCardApplicationRequest Complex Type -->
+            <xsd:complexType name="CreditCardApplicationRequest">
+                <xsd:all>
+                    <!-- Personal Information -->
+                    <xsd:element name="firstName"       type="xsd:string"/>
+                    <xsd:element name="middleName"      type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="lastName"        type="xsd:string"/>
+                    <xsd:element name="dateOfBirth"     type="xsd:string"/>
+                    <xsd:element name="gender"          type="xsd:string"/>
+                    <xsd:element name="ssn"             type="xsd:string"/>
+                    <xsd:element name="emailAddress"    type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="phoneHome"       type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="phoneWork"       type="xsd:string" minOccurs="0"/>
+                    <!-- Address -->
+                    <xsd:element name="addressLine1"    type="xsd:string"/>
+                    <xsd:element name="addressLine2"    type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="city"            type="xsd:string"/>
+                    <xsd:element name="stateCode"       type="xsd:string"/>
+                    <xsd:element name="zipCode"         type="xsd:string"/>
+                    <!-- Card and Financial -->
+                    <xsd:element name="cardTypeId"      type="xsd:int"/>
+                    <xsd:element name="requestedLimit"  type="xsd:double" minOccurs="0"/>
+                    <xsd:element name="annualIncome"    type="xsd:double"/>
+                    <xsd:element name="otherIncome"     type="xsd:double" minOccurs="0"/>
+                    <xsd:element name="monthlyRent"     type="xsd:double" minOccurs="0"/>
+                    <xsd:element name="totalDebt"       type="xsd:double" minOccurs="0"/>
+                    <xsd:element name="homeOwnership"   type="xsd:string"/>
+                    <xsd:element name="bankruptcyFlag"  type="xsd:string" minOccurs="0"/>
+                    <!-- Employment -->
+                    <xsd:element name="employmentType"  type="xsd:string"/>
+                    <xsd:element name="employerName"    type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="jobTitle"        type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="yearsEmployed"   type="xsd:int"    minOccurs="0"/>
+                    <!-- Channel -->
+                    <xsd:element name="channelCode"     type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="branchCode"      type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="agentId"         type="xsd:string" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <!-- CreditCardApplicationResponse Complex Type -->
+            <xsd:complexType name="CreditCardApplicationResponse">
+                <xsd:all>
+                    <xsd:element name="success"           type="xsd:boolean"/>
+                    <xsd:element name="applicationId"     type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="statusCode"        type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="statusDescription" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="errorCode"         type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="errorMessage"      type="xsd:string" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <!-- ApplicationStatusResponse Complex Type -->
+            <xsd:complexType name="ApplicationStatusResponse">
+                <xsd:all>
+                    <xsd:element name="success"           type="xsd:boolean"/>
+                    <xsd:element name="applicationId"     type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="statusCode"        type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="statusDescription" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="approvedLimit"     type="xsd:double" minOccurs="0"/>
+                    <xsd:element name="rejectionReason"   type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="errorCode"         type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="errorMessage"      type="xsd:string" minOccurs="0"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <!-- CardTypeInfo Complex Type -->
+            <xsd:complexType name="CardTypeInfo">
+                <xsd:all>
+                    <xsd:element name="cardTypeId"       type="xsd:int"/>
+                    <xsd:element name="cardTypeCode"     type="xsd:string"/>
+                    <xsd:element name="cardTypeName"     type="xsd:string"/>
+                    <xsd:element name="creditLimitMin"   type="xsd:double"/>
+                    <xsd:element name="creditLimitMax"   type="xsd:double"/>
+                    <xsd:element name="annualFee"        type="xsd:double"/>
+                    <xsd:element name="interestRate"     type="xsd:double"/>
+                    <xsd:element name="minIncomeRequired" type="xsd:double"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <!-- Array of CardTypeInfo -->
+            <xsd:complexType name="ArrayOfCardTypeInfo">
+                <xsd:complexContent>
+                    <xsd:restriction base="soapenc:Array">
+                        <xsd:attribute ref="soapenc:arrayType"
+                                       wsdl:arrayType="tns:CardTypeInfo[]"/>
+                    </xsd:restriction>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        </xsd:schema>
+    </types>
+
+    <!-- ==========================================================
+         MESSAGES
+         ========================================================== -->
+
+    <message name="submitApplicationRequest">
+        <part name="request" type="tns:CreditCardApplicationRequest"/>
+    </message>
+
+    <message name="submitApplicationResponse">
+        <part name="return" type="tns:CreditCardApplicationResponse"/>
+    </message>
+
+    <message name="getApplicationStatusRequest">
+        <part name="applicationId" type="xsd:string"/>
+    </message>
+
+    <message name="getApplicationStatusResponse">
+        <part name="return" type="tns:ApplicationStatusResponse"/>
+    </message>
+
+    <message name="getCardTypesRequest"/>
+
+    <message name="getCardTypesResponse">
+        <part name="return" type="tns:ArrayOfCardTypeInfo"/>
+    </message>
+
+    <!-- ==========================================================
+         PORT TYPE (Service Interface)
+         ========================================================== -->
+
+    <portType name="CreditCardServicePortType">
+
+        <operation name="submitApplication">
+            <documentation>
+                Submits a new credit card application via SOAP.
+                Used by branch offices and partner systems.
+            </documentation>
+            <input  message="tns:submitApplicationRequest"/>
+            <output message="tns:submitApplicationResponse"/>
+        </operation>
+
+        <operation name="getApplicationStatus">
+            <documentation>
+                Retrieves current status of a submitted credit card application.
+            </documentation>
+            <input  message="tns:getApplicationStatusRequest"/>
+            <output message="tns:getApplicationStatusResponse"/>
+        </operation>
+
+        <operation name="getCardTypes">
+            <documentation>
+                Returns list of available credit card products.
+            </documentation>
+            <input  message="tns:getCardTypesRequest"/>
+            <output message="tns:getCardTypesResponse"/>
+        </operation>
+
+    </portType>
+
+    <!-- ==========================================================
+         BINDING (SOAP 1.1 / Document-Literal)
+         ========================================================== -->
+
+    <binding name="CreditCardServiceSoapBinding"
+             type="tns:CreditCardServicePortType">
+
+        <soap:binding style="rpc"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <operation name="submitApplication">
+            <soap:operation soapAction="urn:creditcard.firstbank.com#submitApplication"/>
+            <input>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+
+        <operation name="getApplicationStatus">
+            <soap:operation soapAction="urn:creditcard.firstbank.com#getApplicationStatus"/>
+            <input>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+
+        <operation name="getCardTypes">
+            <soap:operation soapAction="urn:creditcard.firstbank.com#getCardTypes"/>
+            <input>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded"
+                           namespace="urn:creditcard.firstbank.com"
+                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+
+    </binding>
+
+    <!-- ==========================================================
+         SERVICE
+         ========================================================== -->
+
+    <service name="CreditCardService">
+        <documentation>
+            FirstBank Credit Card Application Web Service.
+            Provides SOAP-based integration for branch and partner systems.
+            Contact: integration-team@firstbank.com
+        </documentation>
+        <port name="CreditCardServicePort"
+              binding="tns:CreditCardServiceSoapBinding">
+            <soap:address location="http://localhost:7001/creditcard/services/CreditCardService"/>
+        </port>
+    </service>
+
+</definitions>

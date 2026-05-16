@@ -1,0 +1,22 @@
+<!-- CORRECTED DATASOURCE CONFIGURATION FOR H2 -->
+<!-- Replace the datasource section in your standalone.xml with this -->
+
+<datasource jndi-name="java:/jdbc/FirstBankCCDS" pool-name="FirstBankCCDS" enabled="true" use-java-context="true">
+    <connection-url>jdbc:h2:tcp://localhost:9092/C:/Users/VaibhavPagar/creditcard;MODE=Oracle</connection-url>
+    <driver>h2</driver>
+    <security user-name="sa" password="sa"/>
+    <validation>
+        <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.novendor.NullValidConnectionChecker"/>
+        <background-validation>false</background-validation>
+    </validation>
+</datasource>
+
+<!-- IMPORTANT CHANGES:
+1. Changed from nested <security> format to attribute format
+   WRONG: <security><user-name>sa</user-name><password>sa</password></security>
+   CORRECT: <security user-name="sa" password="sa"/>
+
+2. This is the ONLY change needed for your FirstBankCCDS datasource
+-->
+
+<!-- Made with Bob -->
