@@ -99,54 +99,67 @@ public class ApplicationDAO {
      * @throws DAOException on database error
      */
     public long createCustomer(CustomerVO customerVO, String createdBy) throws DAOException {
-        Connection        con = null;
-        CallableStatement cs  = null;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             con = getConnection();
-            cs  = con.prepareCall(CALL_CREATE_CUSTOMER);
-
-            // IN parameters
-            cs.setString(1,  customerVO.getFirstName());
-            cs.setString(2,  customerVO.getMiddleName());
-            cs.setString(3,  customerVO.getLastName());
-            cs.setDate(4,    new java.sql.Date(customerVO.getDateOfBirth().getTime()));
-            cs.setString(5,  customerVO.getGender());
-            cs.setString(6,  customerVO.getSsn());
-            cs.setString(7,  customerVO.getEmailAddress());
-            cs.setString(8,  customerVO.getPhoneHome());
-            cs.setString(9,  customerVO.getPhoneWork());
-            cs.setString(10, customerVO.getAddressLine1());
-            cs.setString(11, customerVO.getAddressLine2());
-            cs.setString(12, customerVO.getCity());
-            cs.setString(13, customerVO.getStateCode());
-            cs.setString(14, customerVO.getZipCode());
-            cs.setString(15, createdBy);
-
-            // OUT parameters
-            cs.registerOutParameter(16, Types.NUMERIC);  // p_customer_id
-            cs.registerOutParameter(17, Types.NUMERIC);  // p_return_code
-            cs.registerOutParameter(18, Types.VARCHAR);  // p_return_message
-
-            cs.execute();
-
-            int    returnCode    = cs.getInt(17);
-            String returnMessage = cs.getString(18);
-            long   customerId    = cs.getLong(16);
-
-            if (returnCode < 0) {
-                logger.severe("SP_CREATE_CUSTOMER returned error: " + returnCode + " - " + returnMessage);
-                throw new DAOException(returnCode, returnMessage);
+            
+            // Check if customer exists by SSN
+            ps = con.prepareStatement("SELECT CUSTOMER_ID FROM CC_CUSTOMER WHERE SSN = ?");
+            ps.setString(1, customerVO.getSsn());
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                long customerId = rs.getLong(1);
+                logger.info("Existing customer found: ID=" + customerId);
+                return customerId;
             }
-
-            logger.info("Customer created/found: ID=" + customerId + ", message=" + returnMessage);
+            rs.close();
+            ps.close();
+            
+            // Get next customer ID
+            ps = con.prepareStatement("SELECT SEQ_CUSTOMER_ID.NEXTVAL FROM DUAL");
+            rs = ps.executeQuery();
+            rs.next();
+            long customerId = rs.getLong(1);
+            rs.close();
+            ps.close();
+            
+            // Insert new customer
+            ps = con.prepareStatement(
+                "INSERT INTO CC_CUSTOMER (CUSTOMER_ID, FIRST_NAME, MIDDLE_NAME, LAST_NAME, " +
+                "DATE_OF_BIRTH, GENDER, SSN, EMAIL_ADDRESS, PHONE_HOME, PHONE_WORK, " +
+                "ADDRESS_LINE1, ADDRESS_LINE2, CITY, STATE_CODE, ZIP_CODE, CREATED_BY) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+            ps.setLong(1, customerId);
+            ps.setString(2, customerVO.getFirstName());
+            ps.setString(3, customerVO.getMiddleName());
+            ps.setString(4, customerVO.getLastName());
+            ps.setDate(5, new java.sql.Date(customerVO.getDateOfBirth().getTime()));
+            ps.setString(6, customerVO.getGender());
+            ps.setString(7, customerVO.getSsn());
+            ps.setString(8, customerVO.getEmailAddress());
+            ps.setString(9, customerVO.getPhoneHome());
+            ps.setString(10, customerVO.getPhoneWork());
+            ps.setString(11, customerVO.getAddressLine1());
+            ps.setString(12, customerVO.getAddressLine2());
+            ps.setString(13, customerVO.getCity());
+            ps.setString(14, customerVO.getStateCode());
+            ps.setString(15, customerVO.getZipCode());
+            ps.setString(16, createdBy);
+            ps.executeUpdate();
+            
+            logger.info("Customer created successfully: ID=" + customerId);
             return customerId;
 
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "SQLException in createCustomer", e);
             throw new DAOException(e.getErrorCode(), "Database error: " + e.getMessage());
         } finally {
-            close(con, cs);
+            close(con, ps, rs);
         }
     }
 
@@ -162,54 +175,102 @@ public class ApplicationDAO {
      */
     public long submitApplication(ApplicationVO appVO, long customerId, String createdBy)
             throws DAOException {
-        Connection        con = null;
-        CallableStatement cs  = null;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             con = getConnection();
-            cs  = con.prepareCall(CALL_SUBMIT_APPLICATION);
-
-            // IN parameters
-            cs.setLong(1,   customerId);
-            cs.setInt(2,    appVO.getCardTypeId());
-            cs.setDouble(3, appVO.getRequestedLimit());
-            cs.setString(4, appVO.getIpAddress());
-            cs.setDouble(5, appVO.getAnnualIncome());
-            cs.setDouble(6, appVO.getOtherIncome());
-            cs.setDouble(7, appVO.getMonthlyRent());
-            cs.setDouble(8, appVO.getTotalDebt());
-            cs.setString(9, appVO.getHomeOwnership());
-            cs.setString(10, appVO.getBankruptcyFlag());
-            cs.setString(11, appVO.getEmploymentType());
-            cs.setString(12, appVO.getEmployerName());
-            cs.setString(13, appVO.getEmployerPhone());
-            cs.setString(14, appVO.getJobTitle());
-            cs.setInt(15,   appVO.getYearsEmployed());
-            cs.setString(16, createdBy);
-
-            // OUT parameters
-            cs.registerOutParameter(17, Types.NUMERIC);  // p_application_id
-            cs.registerOutParameter(18, Types.NUMERIC);  // p_return_code
-            // Note: message is next but SP has 18 params - re-check spec
-            // Actually we need 19 params for message - adjusting
-            // The stored proc has 18 IN + 3 OUT = re-call with corrected count:
-
-            cs.execute();
-
-            int  returnCode   = cs.getInt(17);
-            long applicationId = cs.getLong(17);
-
-            if (returnCode < 0) {
-                throw new DAOException(returnCode, "Application submission failed.");
-            }
-
+            
+            // Get application ID
+            ps = con.prepareStatement("SELECT SEQ_APPLICATION_ID.NEXTVAL FROM DUAL");
+            rs = ps.executeQuery();
+            rs.next();
+            long applicationId = rs.getLong(1);
+            rs.close();
+            ps.close();
+            
+            // Insert application
+            ps = con.prepareStatement(
+                "INSERT INTO CC_APPLICATION (APPLICATION_ID, CUSTOMER_ID, CARD_TYPE_ID, " +
+                "REQUESTED_LIMIT, IP_ADDRESS, STATUS_CODE, CREATED_BY) " +
+                "VALUES (?, ?, ?, ?, ?, 'PENDING', ?)"
+            );
+            ps.setLong(1, applicationId);
+            ps.setLong(2, customerId);
+            ps.setInt(3, appVO.getCardTypeId());
+            ps.setDouble(4, appVO.getRequestedLimit());
+            ps.setString(5, appVO.getIpAddress());
+            ps.setString(6, createdBy);
+            ps.executeUpdate();
+            ps.close();
+            
+            // Insert financial info
+            ps = con.prepareStatement("SELECT SEQ_APPLICATION_ID.NEXTVAL FROM DUAL");
+            rs = ps.executeQuery();
+            rs.next();
+            long financialId = rs.getLong(1);
+            rs.close();
+            ps.close();
+            
+            ps = con.prepareStatement(
+                "INSERT INTO CC_APPLICANT_FINANCIAL (FINANCIAL_ID, APPLICATION_ID, ANNUAL_INCOME, " +
+                "OTHER_INCOME, MONTHLY_RENT, TOTAL_DEBT, HOME_OWNERSHIP, BANKRUPTCY_FLAG) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+            ps.setLong(1, financialId);
+            ps.setLong(2, applicationId);
+            ps.setDouble(3, appVO.getAnnualIncome());
+            ps.setDouble(4, appVO.getOtherIncome());
+            ps.setDouble(5, appVO.getMonthlyRent());
+            ps.setDouble(6, appVO.getTotalDebt());
+            ps.setString(7, appVO.getHomeOwnership());
+            ps.setString(8, appVO.getBankruptcyFlag());
+            ps.executeUpdate();
+            ps.close();
+            
+            // Insert employment info
+            ps = con.prepareStatement("SELECT SEQ_APPLICATION_ID.NEXTVAL FROM DUAL");
+            rs = ps.executeQuery();
+            rs.next();
+            long employmentId = rs.getLong(1);
+            rs.close();
+            ps.close();
+            
+            ps = con.prepareStatement(
+                "INSERT INTO CC_APPLICANT_EMPLOYMENT (EMPLOYMENT_ID, APPLICATION_ID, EMPLOYMENT_TYPE, " +
+                "EMPLOYER_NAME, EMPLOYER_PHONE, JOB_TITLE, YEARS_EMPLOYED) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)"
+            );
+            ps.setLong(1, employmentId);
+            ps.setLong(2, applicationId);
+            ps.setString(3, appVO.getEmploymentType());
+            ps.setString(4, appVO.getEmployerName());
+            ps.setString(5, appVO.getEmployerPhone());
+            ps.setString(6, appVO.getJobTitle());
+            ps.setInt(7, appVO.getYearsEmployed());
+            ps.executeUpdate();
+            ps.close();
+            
+            // Audit log
+            ps = con.prepareStatement(
+                "INSERT INTO CC_APPLICATION_AUDIT (AUDIT_ID, APPLICATION_ID, ACTION_CODE, " +
+                "NEW_STATUS, ACTION_BY, ACTION_NOTES, IP_ADDRESS) " +
+                "VALUES (SEQ_AUDIT_ID.NEXTVAL, ?, 'SUBMIT', 'PENDING', ?, 'Application submitted', ?)"
+            );
+            ps.setLong(1, applicationId);
+            ps.setString(2, createdBy);
+            ps.setString(3, appVO.getIpAddress());
+            ps.executeUpdate();
+            
+            logger.info("Application submitted successfully: ID=" + applicationId);
             return applicationId;
 
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "SQLException in submitApplication", e);
             throw new DAOException(e.getErrorCode(), "Database error: " + e.getMessage());
         } finally {
-            close(con, cs);
+            close(con, ps, rs);
         }
     }
 
@@ -221,34 +282,32 @@ public class ApplicationDAO {
      * @throws DAOException  if not found or database error
      */
     public ApplicationVO getApplicationStatus(long applicationId) throws DAOException {
-        Connection        con = null;
-        CallableStatement cs  = null;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             con = getConnection();
-            cs  = con.prepareCall(CALL_GET_STATUS);
-
-            cs.setLong(1, applicationId);      // IN: p_application_id
-            cs.registerOutParameter(2, Types.VARCHAR);  // p_status_code
-            cs.registerOutParameter(3, Types.VARCHAR);  // p_status_desc
-            cs.registerOutParameter(4, Types.NUMERIC);  // p_approved_limit
-            cs.registerOutParameter(5, Types.VARCHAR);  // p_rejection_reason
-            cs.registerOutParameter(6, Types.NUMERIC);  // p_return_code
-            cs.registerOutParameter(7, Types.VARCHAR);  // p_return_message
-
-            cs.execute();
-
-            int returnCode = cs.getInt(6);
-            if (returnCode < 0) {
-                throw new DAOException(returnCode, "Application not found: " + applicationId);
+            ps = con.prepareStatement(
+                "SELECT a.STATUS_CODE, s.STATUS_DESC, a.APPROVED_LIMIT, r.REASON_DESC " +
+                "FROM CC_APPLICATION a " +
+                "JOIN CC_STATUS_CODE s ON a.STATUS_CODE = s.STATUS_CODE " +
+                "LEFT JOIN CC_REJECTION_REASON r ON a.REJECTION_REASON = r.REASON_CODE " +
+                "WHERE a.APPLICATION_ID = ?"
+            );
+            ps.setLong(1, applicationId);
+            rs = ps.executeQuery();
+            
+            if (!rs.next()) {
+                throw new DAOException(-1, "Application not found: " + applicationId);
             }
 
             ApplicationVO appVO = new ApplicationVO();
             appVO.setApplicationId(applicationId);
-            appVO.setStatusCode(cs.getString(2));
-            appVO.setStatusDescription(cs.getString(3));
-            appVO.setApprovedLimit(cs.getDouble(4));
-            appVO.setRejectionReasonDesc(cs.getString(5));
+            appVO.setStatusCode(rs.getString(1));
+            appVO.setStatusDescription(rs.getString(2));
+            appVO.setApprovedLimit(rs.getDouble(3));
+            appVO.setRejectionReasonDesc(rs.getString(4));
 
             return appVO;
 
@@ -256,7 +315,7 @@ public class ApplicationDAO {
             logger.log(Level.SEVERE, "SQLException in getApplicationStatus", e);
             throw new DAOException(e.getErrorCode(), "Database error: " + e.getMessage());
         } finally {
-            close(con, cs);
+            close(con, ps, rs);
         }
     }
 
@@ -317,37 +376,84 @@ public class ApplicationDAO {
      */
     public String evaluateApplication(long applicationId, int creditScore, String analystId)
             throws DAOException {
-        Connection        con = null;
-        CallableStatement cs  = null;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             con = getConnection();
-            cs  = con.prepareCall(CALL_EVALUATE_APPLICATION);
-
-            cs.setLong(1,   applicationId);
-            cs.setInt(2,    creditScore);
-            cs.setString(3, analystId);
-
-            cs.registerOutParameter(4, Types.VARCHAR);  // p_decision
-            cs.registerOutParameter(5, Types.NUMERIC);  // p_approved_limit
-            cs.registerOutParameter(6, Types.VARCHAR);  // p_rejection_reason
-            cs.registerOutParameter(7, Types.NUMERIC);  // p_return_code
-            cs.registerOutParameter(8, Types.VARCHAR);  // p_return_message
-
-            cs.execute();
-
-            int returnCode = cs.getInt(7);
-            if (returnCode < 0) {
-                throw new DAOException(returnCode, cs.getString(8));
+            
+            // Get financial info
+            ps = con.prepareStatement(
+                "SELECT f.ANNUAL_INCOME, f.TOTAL_DEBT, c.MIN_INCOME_REQ, c.CREDIT_LIMIT_MAX " +
+                "FROM CC_APPLICATION a " +
+                "JOIN CC_APPLICANT_FINANCIAL f ON a.APPLICATION_ID = f.APPLICATION_ID " +
+                "JOIN CC_CARD_TYPE c ON a.CARD_TYPE_ID = c.CARD_TYPE_ID " +
+                "WHERE a.APPLICATION_ID = ?"
+            );
+            ps.setLong(1, applicationId);
+            rs = ps.executeQuery();
+            
+            if (!rs.next()) {
+                throw new DAOException(-1, "Application not found");
             }
-
-            return cs.getString(4);  // decision
+            
+            double annualIncome = rs.getDouble(1);
+            double totalDebt = rs.getDouble(2);
+            double minIncome = rs.getDouble(3);
+            double maxLimit = rs.getDouble(4);
+            rs.close();
+            ps.close();
+            
+            // Calculate debt-to-income ratio
+            double debtRatio = (totalDebt / annualIncome) * 100;
+            
+            // Decision logic
+            String decision;
+            String rejectionReason = null;
+            double approvedLimit = 0;
+            
+            if (creditScore < 620) {
+                decision = "REJECTED";
+                rejectionReason = "LOW_SCORE";
+            } else if (annualIncome < minIncome) {
+                decision = "REJECTED";
+                rejectionReason = "LOW_INCOME";
+            } else if (debtRatio > 43) {
+                decision = "REJECTED";
+                rejectionReason = "HIGH_DEBT";
+            } else if (creditScore >= 750) {
+                decision = "APPROVED";
+                approvedLimit = Math.min(maxLimit, annualIncome * 0.3);
+            } else if (creditScore >= 620) {
+                decision = "APPROVED";
+                approvedLimit = Math.min(maxLimit * 0.5, annualIncome * 0.2);
+            } else {
+                decision = "REVIEW";
+            }
+            
+            // Update application
+            ps = con.prepareStatement(
+                "UPDATE CC_APPLICATION SET STATUS_CODE = ?, CREDIT_SCORE = ?, " +
+                "APPROVED_LIMIT = ?, REJECTION_REASON = ?, ANALYST_ID = ?, REVIEW_DATE = CURRENT_TIMESTAMP " +
+                "WHERE APPLICATION_ID = ?"
+            );
+            ps.setString(1, decision);
+            ps.setInt(2, creditScore);
+            ps.setDouble(3, approvedLimit);
+            ps.setString(4, rejectionReason);
+            ps.setString(5, analystId);
+            ps.setLong(6, applicationId);
+            ps.executeUpdate();
+            
+            logger.info("Application evaluated: ID=" + applicationId + ", Decision=" + decision);
+            return decision;
 
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "SQLException in evaluateApplication", e);
             throw new DAOException(e.getErrorCode(), "Database error: " + e.getMessage());
         } finally {
-            close(con, cs);
+            close(con, ps, rs);
         }
     }
 }

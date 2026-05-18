@@ -33,7 +33,7 @@ import com.firstbank.creditcard.vo.ApplicationVO;
 public class StatusInquiryAction extends Action {
 
     private static final Logger logger = Logger.getLogger(StatusInquiryAction.class.getName());
-    private static final String EJB_JNDI_NAME = "ejb/CreditCardApplicationBean";
+    private static final String EJB_JNDI_NAME = "java:global/creditcard/CreditCardApplicationBean!com.firstbank.creditcard.ejb.session.CreditCardApplicationHome";
 
     public ActionForward execute(
             ActionMapping       mapping,

@@ -45,7 +45,7 @@ public class PersonalInfoAction extends Action {
     private static final Logger logger = Logger.getLogger(PersonalInfoAction.class.getName());
 
     /** JNDI name of the EJB Home interface */
-    private static final String EJB_JNDI_NAME = "ejb/CreditCardApplicationBean";
+    private static final String EJB_JNDI_NAME = "java:global/creditcard/CreditCardApplicationBean!com.firstbank.creditcard.ejb.session.CreditCardApplicationHome";
 
     /** Session attribute key for CustomerVO */
     static final String SESSION_CUSTOMER_VO = "customerVO";

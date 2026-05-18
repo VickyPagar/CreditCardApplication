@@ -42,7 +42,7 @@ public class FinancialInfoAction extends Action {
 
     private static final Logger logger = Logger.getLogger(FinancialInfoAction.class.getName());
 
-    private static final String EJB_JNDI_NAME      = "ejb/CreditCardApplicationBean";
+    private static final String EJB_JNDI_NAME      = "java:global/creditcard/CreditCardApplicationBean!com.firstbank.creditcard.ejb.session.CreditCardApplicationHome";
     static final String         SESSION_CUSTOMER_VO = "customerVO";
     static final String         SESSION_APPLICATION_ID = "applicationId";
 
@@ -93,8 +93,7 @@ public class FinancialInfoAction extends Action {
             appVO.setEmployerName(finForm.getEmployerName());
             appVO.setEmployerPhone(finForm.getEmployerPhone());
             appVO.setJobTitle(finForm.getJobTitle());
-            appVO.setYearsEmployed(
-                finForm.getYearsEmployed() != null ? Integer.parseInt(finForm.getYearsEmployed()) : 0);
+            appVO.setYearsEmployed(parseIntOrZero(finForm.getYearsEmployed()));
 
             // Capture client IP address for audit
             appVO.setIpAddress(request.getRemoteAddr());
@@ -158,6 +157,15 @@ public class FinancialInfoAction extends Action {
             return Double.parseDouble(value.trim().replaceAll(",", ""));
         } catch (NumberFormatException e) {
             return 0.0;
+        }
+    }
+
+    private int parseIntOrZero(String value) {
+        if (value == null || value.trim().length() == 0) return 0;
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }
