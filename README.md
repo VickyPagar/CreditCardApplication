@@ -15,7 +15,7 @@ A legacy J2EE 1.3 enterprise application for processing credit card applications
 ### Required Software
 - **JDK 8 or higher** (Java Development Kit)
 - **Apache Maven 3.6+** (Build tool)
-- **Oracle Database 11g+** or compatible (PostgreSQL, H2 for testing)
+- **H2 Database* or compatible (PostgreSQL, H2 for testing)
 - **Application Server**: One of the following:
   - Apache Tomcat 9+ (for WAR deployment)
   - JBoss/WildFly (for full EAR deployment)
@@ -36,26 +36,7 @@ cd c:/Users/VaibhavPagar/Documents/workspacefinaljboss/credit_card_app
 
 ### 2. Set Up Database
 
-#### Option A: Oracle Database
-```bash
-# Connect to Oracle as SYSDBA
-sqlplus sys/password@localhost:1521/orcl as sysdba
-
-# Create user
-CREATE USER ccapp_user IDENTIFIED BY ccapp_password;
-GRANT CONNECT, RESOURCE TO ccapp_user;
-GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE PROCEDURE TO ccapp_user;
-ALTER USER ccapp_user QUOTA UNLIMITED ON USERS;
-
-# Connect as application user
-sqlplus ccapp_user/ccapp_password@localhost:1521/orcl
-
-# Run schema and procedures
-@sql/schema.sql
-@sql/procedures.sql
-```
-
-#### Option B: H2 Database (Quick Testing)
+####  H2 Database (Quick Testing)
 ```bash
 # Download H2 database from http://www.h2database.com/
 # Start H2 console
@@ -95,19 +76,6 @@ mvn clean package
 ```
 
 ### 5. Deploy to Application Server
-
-#### Tomcat Deployment:
-```bash
-# Copy WAR file
-copy target\creditcard.war %TOMCAT_HOME%\webapps\
-
-# Or on Linux/Mac
-cp target/creditcard.war $TOMCAT_HOME/webapps/
-
-# Start Tomcat
-%TOMCAT_HOME%\bin\startup.bat    # Windows
-$TOMCAT_HOME/bin/startup.sh      # Linux/Mac
-```
 
 #### JBoss/WildFly Deployment:
 ```bash
@@ -171,20 +139,6 @@ credit_card_app/
 ### Application Server Configuration
 
 #### Configure JNDI DataSource
-
-**For Tomcat** - Add to `conf/context.xml`:
-```xml
-<Resource name="jdbc/FirstBankCCDS"
-          auth="Container"
-          type="javax.sql.DataSource"
-          driverClassName="oracle.jdbc.driver.OracleDriver"
-          url="jdbc:oracle:thin:@localhost:1521:orcl"
-          username="ccapp_user"
-          password="ccapp_password"
-          maxTotal="10"
-          maxIdle="5"
-          maxWaitMillis="10000"/>
-```
 
 **For JBoss/WildFly** - Add to `standalone.xml`:
 ```xml
