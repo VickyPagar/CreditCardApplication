@@ -6,6 +6,7 @@ com\firstbank\creditcard\vo\CustomerVO.class
 com\firstbank\creditcard\form\FinancialInfoForm.class
 com\firstbank\creditcard\dao\ApplicationDAO.class
 com\firstbank\creditcard\dao\DAOException.class
+com\firstbank\creditcard\dao\H2Procedures.class
 com\firstbank\creditcard\service\CreditCardApplicationRequest.class
 com\firstbank\creditcard\ejb\session\CreditCardApplicationHome.class
 com\firstbank\creditcard\action\PersonalInfoAction.class
